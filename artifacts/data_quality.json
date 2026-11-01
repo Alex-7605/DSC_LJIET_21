@@ -1,0 +1,38 @@
+{
+  "rows_loaded": 12000,
+  "missing_values": {
+    "order_id": 0,
+    "order_date": 0,
+    "delivery_date": 332,
+    "promised_date": 0,
+    "status": 0,
+    "region": 0,
+    "category": 79,
+    "sales": 79,
+    "quantity": 79
+  },
+  "exact_duplicates_removed": 0,
+  "unrecognized_status_rows": 0,
+  "repeated_order_rows": 0,
+  "conflicting_orders": 0,
+  "invalid_record_rows": 0,
+  "usable_orders": 12000,
+  "eligible_orders": 11668,
+  "unknown_or_excluded_orders": 332,
+  "label_mismatches": 0,
+  "actions": [
+    "Original data retained separately in memory.",
+    "Only mapped, allowlisted columns retained.",
+    "Exact duplicates removed.",
+    "Invalid lines and all sibling order lines excluded.",
+    "Input grain: order; financial grain: item.",
+    "Calendar-day order-to-customer-delivery durations used when dates exist.",
+    "Repeated items aggregated; conflicting order outcomes excluded.",
+    "Source-label disagreements flagged; model training blocked until resolved."
+  ],
+  "exclusion_counts": {
+    "undelivered / unknown status": 249,
+    "cancelled": 81,
+    "missing delivery outcome": 2
+  }
+}

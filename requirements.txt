@@ -1,0 +1,9 @@
+# Tested with CPython 3.14 on Windows. See requirements-lock.txt for the exact environment.
+streamlit==1.66.1
+pandas==2.3.3
+numpy==2.5.4
+plotly==7.1.0
+scikit-learn==1.9.1
+joblib==1.6.0
+pyarrow==23.0.1
+pytest==9.2.0

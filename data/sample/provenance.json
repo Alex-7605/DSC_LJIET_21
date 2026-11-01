@@ -1,0 +1,27 @@
+{
+  "name": "Olist real-order sample (12,000 orders)",
+  "kind": "Real, privacy-reduced historical sample",
+  "publisher": "Olist",
+  "source_url": "https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce",
+  "access_date": "2026-11-01",
+  "license": "CC BY-NC-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "attribution": "Olist. Brazilian E-Commerce Public Dataset by Olist. Kaggle. Adapted into an order-level non-commercial teaching sample.",
+  "changes": "Random sample (seed 21); item prices summed once per order; categories translated, multi-category orders labeled Mixed; customer linkage removed; order IDs replaced.",
+  "source_orders": 99441,
+  "source_items": 112650,
+  "sample_orders": 12000,
+  "archive_sha256": "967e41e04fc306fe604e2a693f488995a8b41e5047418f8a5c8e4abd6deca784",
+  "sample_sha256": "24f2ec7c6388cf7668ac623c4b289654c0564fcc64025cafe3bb3854f03ff0cc",
+  "coverage_start": "2016-09-05 00:15:34",
+  "coverage_end": "2018-10-17 17:30:18",
+  "grain": "One row per distinct order",
+  "financial_rule": "sales = sum of item price, excluding freight; quantity = number of item records",
+  "currency": "Source monetary units; no currency assertion in this project.",
+  "limitations": [
+    "Historical Brazilian marketplace sample, not current or global performance.",
+    "No shipping mode, customer segment, discount, profit, carrier ID, inventory or measured savings.",
+    "Estimated delivery timestamps are treated as calendar-day promises.",
+    "Checkout availability of item attributes and promise is assumed; no event audit log is supplied."
+  ]
+}

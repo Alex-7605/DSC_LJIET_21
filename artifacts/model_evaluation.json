@@ -1,0 +1,394 @@
+{
+  "schema_version": "order-placement-v1.2",
+  "fingerprint": "124050d7ab95b45d1205c13c94a0621e732d5175d21c8560da493b8a6c1ec9c1",
+  "python": "3.14.7",
+  "sklearn": "1.9.1",
+  "target": "1 if delivered on a later calendar date than the checkout promise, otherwise 0; eligible delivered orders only.",
+  "prediction_moment": "Order placement, conditional on eventual observed delivery.",
+  "features": [
+    "sales",
+    "quantity",
+    "scheduled_days",
+    "order_month",
+    "order_weekday",
+    "region",
+    "category"
+  ],
+  "split": {
+    "method": "Chronological 60/20/20 of distinct order dates, with label-availability purge.",
+    "validation_start": "2018-01-01",
+    "test_start": "2018-05-01",
+    "purged_train_orders": 311,
+    "purged_validation_orders": 415,
+    "label_availability": "Customer delivery calendar date + 1 day; duration-only uploads use order date + actual days + 1.",
+    "splits": {
+      "train": {
+        "rows": 5012,
+        "orders": 5012,
+        "start": "2016-10-04",
+        "end": "2017-12-27",
+        "late_orders": 223,
+        "late_rate": 0.04449321628092578
+      },
+      "validation": {
+        "rows": 2894,
+        "orders": 2894,
+        "start": "2018-01-01",
+        "end": "2018-04-26",
+        "late_orders": 304,
+        "late_rate": 0.1050449205252246
+      },
+      "test": {
+        "rows": 3036,
+        "orders": 3036,
+        "start": "2018-05-01",
+        "end": "2018-08-29",
+        "late_orders": 126,
+        "late_rate": 0.041501976284584984
+      }
+    }
+  },
+  "class_weight": "balanced",
+  "selection": "Highest validation average precision (AP); validation F1 tie-break. Threshold maximizes validation F1 over 0.05 to 0.80.",
+  "selected_model": "Random Forest",
+  "threshold": 0.45,
+  "thresholds": {
+    "Dummy baseline": 0.5,
+    "Logistic Regression": 0.4,
+    "Random Forest": 0.45
+  },
+  "validation": {
+    "Dummy baseline": {
+      "accuracy": 0.8949550794747754,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "roc_auc": 0.5,
+      "pr_auc_ap": 0.1050449205252246,
+      "brier_score": 0.0976769940839629,
+      "confusion_matrix": [
+        [
+          2590,
+          0
+        ],
+        [
+          304,
+          0
+        ]
+      ]
+    },
+    "Logistic Regression": {
+      "accuracy": 0.5103662750518314,
+      "precision": 0.12974051896207583,
+      "recall": 0.6414473684210527,
+      "f1": 0.2158273381294964,
+      "roc_auc": 0.5880886760820971,
+      "pr_auc_ap": 0.13282601773259006,
+      "brier_score": 0.21282833617392308,
+      "confusion_matrix": [
+        [
+          1282,
+          1308
+        ],
+        [
+          109,
+          195
+        ]
+      ]
+    },
+    "Random Forest": {
+      "accuracy": 0.5310988251554941,
+      "precision": 0.12526690391459075,
+      "recall": 0.5789473684210527,
+      "f1": 0.20596840257460503,
+      "roc_auc": 0.5718311826864458,
+      "pr_auc_ap": 0.14107454987415194,
+      "brier_score": 0.2126645208020596,
+      "confusion_matrix": [
+        [
+          1361,
+          1229
+        ],
+        [
+          128,
+          176
+        ]
+      ]
+    }
+  },
+  "test": {
+    "Dummy baseline": {
+      "accuracy": 0.958498023715415,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "roc_auc": 0.5,
+      "pr_auc_ap": 0.041501976284584984,
+      "brier_score": 0.039788509765774444,
+      "confusion_matrix": [
+        [
+          2910,
+          0
+        ],
+        [
+          126,
+          0
+        ]
+      ]
+    },
+    "Logistic Regression": {
+      "accuracy": 0.4067852437417655,
+      "precision": 0.05285638013881474,
+      "recall": 0.7857142857142857,
+      "f1": 0.09904952476238119,
+      "roc_auc": 0.6580592374406808,
+      "pr_auc_ap": 0.08149013193541116,
+      "brier_score": 0.2617016965465198,
+      "confusion_matrix": [
+        [
+          1136,
+          1774
+        ],
+        [
+          27,
+          99
+        ]
+      ]
+    },
+    "Random Forest": {
+      "accuracy": 0.4357707509881423,
+      "precision": 0.050933786078098474,
+      "recall": 0.7142857142857143,
+      "f1": 0.09508716323296355,
+      "roc_auc": 0.6034718813069329,
+      "pr_auc_ap": 0.058815172137586684,
+      "brier_score": 0.22065664282886277,
+      "confusion_matrix": [
+        [
+          1233,
+          1677
+        ],
+        [
+          36,
+          90
+        ]
+      ]
+    }
+  },
+  "calibration": {
+    "mean_predicted": [
+      0.3433567412385485,
+      0.4168166184954185,
+      0.4496682454716774,
+      0.4829329598053151,
+      0.5188457643551533,
+      0.5647804575512494
+    ],
+    "observed_late_fraction": [
+      0.025691699604743084,
+      0.023715415019762844,
+      0.03557312252964427,
+      0.0533596837944664,
+      0.04940711462450593,
+      0.06126482213438735
+    ],
+    "note": "Held-out reliability bins and Brier score assess calibration; probabilities are not guaranteed confidence. No post-hoc calibrator fitted."
+  },
+  "logistic_coefficients": [
+    {
+      "feature": "categorical__region_MS",
+      "coefficient": -2.4755427255819797
+    },
+    {
+      "feature": "categorical__region_AP",
+      "coefficient": 2.268618008618517
+    },
+    {
+      "feature": "categorical__category_home_appliances_2",
+      "coefficient": 1.8831621117057824
+    },
+    {
+      "feature": "categorical__category_market_place",
+      "coefficient": -1.7533907413258258
+    },
+    {
+      "feature": "categorical__category_home_confort",
+      "coefficient": -1.7073673362315667
+    },
+    {
+      "feature": "categorical__category_furniture_living_room",
+      "coefficient": 1.6218302866280456
+    },
+    {
+      "feature": "categorical__category_musical_instruments",
+      "coefficient": -1.6108767255295025
+    },
+    {
+      "feature": "categorical__region_MG",
+      "coefficient": -1.5939131779647422
+    },
+    {
+      "feature": "categorical__category_books_technical",
+      "coefficient": 1.5476802637126161
+    },
+    {
+      "feature": "categorical__region_SE",
+      "coefficient": 1.5424176116413881
+    },
+    {
+      "feature": "categorical__region_PA",
+      "coefficient": 1.4036813230327743
+    },
+    {
+      "feature": "categorical__category_computers",
+      "coefficient": -1.400910789948687
+    },
+    {
+      "feature": "categorical__category_Mixed",
+      "coefficient": 1.392101028357818
+    },
+    {
+      "feature": "categorical__category_fashion_shoes",
+      "coefficient": 1.310544641873317
+    },
+    {
+      "feature": "categorical__region_AL",
+      "coefficient": 1.2778504751772322
+    }
+  ],
+  "training_bounds": {
+    "sales": [
+      4.9,
+      6735.0
+    ],
+    "quantity": [
+      1.0,
+      10.0
+    ],
+    "scheduled_days": [
+      8.0,
+      95.0
+    ],
+    "order_month": [
+      1.0,
+      12.0
+    ],
+    "order_weekday": [
+      0.0,
+      6.0
+    ]
+  },
+  "training_categories": {
+    "region": [
+      "AC",
+      "AL",
+      "AM",
+      "AP",
+      "BA",
+      "CE",
+      "DF",
+      "ES",
+      "GO",
+      "MA",
+      "MG",
+      "MS",
+      "MT",
+      "PA",
+      "PB",
+      "PE",
+      "PI",
+      "PR",
+      "RJ",
+      "RN",
+      "RO",
+      "RR",
+      "RS",
+      "SC",
+      "SE",
+      "SP",
+      "TO"
+    ],
+    "category": [
+      "Mixed",
+      "Unknown",
+      "agro_industry_and_commerce",
+      "air_conditioning",
+      "art",
+      "audio",
+      "auto",
+      "baby",
+      "bed_bath_table",
+      "books_general_interest",
+      "books_imported",
+      "books_technical",
+      "cds_dvds_musicals",
+      "christmas_supplies",
+      "cine_photo",
+      "computers",
+      "computers_accessories",
+      "consoles_games",
+      "construction_tools_construction",
+      "construction_tools_safety",
+      "cool_stuff",
+      "costruction_tools_garden",
+      "costruction_tools_tools",
+      "drinks",
+      "dvds_blu_ray",
+      "electronics",
+      "fashio_female_clothing",
+      "fashion_bags_accessories",
+      "fashion_male_clothing",
+      "fashion_shoes",
+      "fashion_sport",
+      "fashion_underwear_beach",
+      "fixed_telephony",
+      "flowers",
+      "food",
+      "food_drink",
+      "furniture_bedroom",
+      "furniture_decor",
+      "furniture_living_room",
+      "furniture_mattress_and_upholstery",
+      "garden_tools",
+      "health_beauty",
+      "home_appliances",
+      "home_appliances_2",
+      "home_comfort_2",
+      "home_confort",
+      "home_construction",
+      "housewares",
+      "industry_commerce_and_business",
+      "kitchen_dining_laundry_garden_furniture",
+      "luggage_accessories",
+      "market_place",
+      "music",
+      "musical_instruments",
+      "office_furniture",
+      "perfumery",
+      "pet_shop",
+      "signaling_and_security",
+      "small_appliances",
+      "sports_leisure",
+      "stationery",
+      "tablets_printing_image",
+      "telephony",
+      "toys",
+      "watches_gifts"
+    ]
+  },
+  "limitations": [
+    "Historical observational sample; performance can drift across time, states and products.",
+    "Only orders with observed delivery outcomes are modeled; cancellation and non-delivery risk are outside the target.",
+    "Label timing uses delivery day + 1 day; administrative reporting delays are unknown.",
+    "Checkout availability of price, quantity, category and promise is assumed for Olist; confirm for uploaded data.",
+    "F1 thresholds reflect a heuristic, not a measured business cost or guaranteed service improvement.",
+    "Coefficients describe associations in the Logistic Regression comparator and are not causal effects."
+  ],
+  "dataset_source": "https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce | Real 12,000-order sample",
+  "generated_at_utc": "2026-11-01T15:28:41+00:00",
+  "filters": "{\"scope\": \"Full sample; fixed chronological holdout\"}",
+  "analytical_unit": "Distinct order",
+  "metric_definitions": "Unit: distinct order. Eligible: delivered/completed with valid actual and promised duration. Durations: calendar days from order placement to customer delivery. Delay = actual - scheduled days; late > 0, on time <= 0. On-time rate = on-time eligible orders / eligible delivered orders. Same-calendar-day arrival is on time. Sales are aggregated once per order; currency is unspecified for uploads.",
+  "eligible_population": "Delivered/completed orders with valid actual and scheduled delivery durations.",
+  "dataset_limitations": "Historical observational data; associations are not causal. Cancelled, undelivered and unknown outcomes are excluded from delivery-rate denominators. Small groups are unstable. No measured savings, carrier quality, inventory efficiency or current service guarantees are inferred."
+}
