@@ -20,7 +20,7 @@ def render_general(selection, page):
     profile_key=(selection.token,decimal,deduplicate)
     stored=st.session_state.get("_generic_profile")
     if stored is None or stored[0]!=profile_key:
-        with st.spinner("Profiling columns and excluding detected contact fieldsâ€¦"):
+        with st.spinner("Profiling columns and excluding detected contact fields…"):
             dataset=infer_general(selection.raw,decimal,deduplicate)
         st.session_state["_generic_profile"]=(profile_key,dataset)
     dataset=st.session_state["_generic_profile"][1]
@@ -73,12 +73,12 @@ def render_general(selection, page):
         st.dataframe(dataset.profile,hide_index=True,width="stretch")
         st.caption("Column profiles describe the full prepared table. Numeric conversion requires every nonblank value to be finite and valid. Ambiguous dates and mixed numeric text remain text.")
         for action in dataset.actions:
-            st.write("â€¢ "+action)
+            st.write("• "+action)
         if dataset.hidden_columns:
             with st.expander("Excluded column names"):
                 st.write(", ".join(dataset.hidden_columns))
         if dataset.numeric_columns:
-            st.subheader("Numeric summary Â· selected rows")
+            st.subheader("Numeric summary · selected rows")
             st.dataframe(selected[dataset.numeric_columns].describe().T,width="stretch")
     with chart_tab:
         render_chart_studio(selected,dataset,selection.token)
@@ -86,7 +86,7 @@ def render_general(selection, page):
         st.write("Download the selected rows with their source, filters, column profile and cleaning notes.")
         export_key=sha256((str(profile_key)+selection.source+json.dumps(filters,sort_keys=True,default=str)).encode()).hexdigest()
         if st.button("Prepare data export",type="primary",disabled=selected.empty):
-            with st.spinner("Building your export bundleâ€¦"):
+            with st.spinner("Building your export bundle…"):
                 st.session_state["_generic_export"]=(export_key,general_bundle(selected,dataset,selection.source,filters))
         export=st.session_state.get("_generic_export")
         if export and export[0]==export_key:
@@ -115,7 +115,7 @@ def render_chart_studio(frame,dataset,token):
         counts=frame[field].fillna("(Missing)").astype(str).value_counts().head(n).rename_axis(field).reset_index(name="Rows")
         fig=px.bar(counts,x="Rows",y=field,orientation="h",color_discrete_sequence=["#287F83"])
         fig.update_layout(yaxis={"categoryorder":"total ascending"})
-        st.plotly_chart(style(fig,f"Most frequent values Â· {field}"),width="stretch")
+        st.plotly_chart(style(fig,f"Most frequent values · {field}"),width="stretch")
         st.caption(f"Top {n} by row count; full selected table, {len(frame):,} rows. Other groups are outside this view.")
     elif chart=="Group comparison":
         category=st.selectbox("Group by",[c for c in frame if c not in dataset.date_columns])

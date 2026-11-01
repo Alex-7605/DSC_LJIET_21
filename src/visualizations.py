@@ -33,7 +33,7 @@ def group_chart(orders, column, minimum=30, top_n=10):
                     mode="lines+markers", yaxis="y2", line=dict(color=RED),
                     customdata=table[["late_orders", "eligible_orders", "evidence"]].values,
                     hovertemplate="%{x}<br>Late %{y:.1f}%<br>%{customdata[0]} / %{customdata[1]}<br>%{customdata[2]}<extra></extra>")
-    style(fig, f"Late rate & volume Â· {column.replace('_', ' ')}")
+    style(fig, f"Late rate & volume · {column.replace('_', ' ')}")
     fig.update_layout(yaxis=dict(title="Eligible orders", rangemode="tozero"),
                       yaxis2=dict(title="Late rate (%)", overlaying="y", side="right", range=[0, 100], tickmode="linear", dtick=20),
                       legend=dict(orientation="h", y=-.25), margin=dict(l=45,r=45,t=70,b=85))
@@ -44,7 +44,7 @@ def trend_chart(orders):
     fig = px.line(table, x="month", y="on_time_rate", markers=True,
                   custom_data=["eligible_orders", "late_orders"])
     fig.update_traces(hovertemplate="%{x}<br>On time %{y:.1%}<br>%{customdata[0]} eligible orders<extra></extra>")
-    style(fig, "Monthly on-time delivery Â· order month")
+    style(fig, "Monthly on-time delivery · order month")
     fig.update_yaxes(range=[0, 1], tickformat=".0%", title="On-time rate")
     fig.update_xaxes(title="")
     return fig
@@ -62,4 +62,4 @@ def correlation_chart(orders):
     if len(cols) < 2:
         return None
     return style(px.imshow(orders.loc[orders.eligible, cols].corr(), zmin=-1, zmax=1,
-                           color_continuous_scale="RdBu", text_auto=".2f"), "Numeric relationships Â· Pearson correlation")
+                           color_continuous_scale="RdBu", text_auto=".2f"), "Numeric relationships · Pearson correlation")
