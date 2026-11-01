@@ -8,7 +8,7 @@ def test_all_pages_and_prediction():
     app=AppTest.from_file(str(ROOT/"app.py"),default_timeout=60).run()
     assert not app.exception
     assert app.metric[0].value == "12,000"
-    for page in ["Explore Data","Delivery Performance","Business Insights","Project Guide","Model Evaluation"]:
+    for page in ["Explore Data","Delivery Performance","Business Insights","Model Evaluation"]:
         app.radio(key="page").set_value(page).run()
         assert not app.exception, page
     buttons=[b for b in app.button if b.label=="Train and evaluate models"]

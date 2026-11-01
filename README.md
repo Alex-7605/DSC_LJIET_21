@@ -27,7 +27,7 @@
 
 **SupplyLens · Version 2.0 — examination edition**
 
-A redesigned local dashboard with a universal CSV exploration workspace, 200 MB uploads, a guided viva tour, printable reports and a double-click launcher. [What changed](CHANGELOG.md) · [CSV workspace guide](docs/CSV_WORKSPACE.md)
+A redesigned local dashboard with a universal CSV exploration workspace, 200 MB uploads, printable reports and a double-click launcher. [What changed](CHANGELOG.md) · [CSV workspace guide](docs/CSV_WORKSPACE.md)
 
 **Launch the installed project:** double-click **Start Project.cmd**. It opens a free local port automatically. The standard Streamlit command below remains supported.
 
@@ -45,15 +45,8 @@ The supply-chain branch measures **actual customer arrival against the delivery 
 | Business Insights | Which sufficiently large groups deserve investigation first? |
 | Predict Delivery Risk | What risk does the selected model estimate from order-placement inputs? |
 | Model Evaluation | How do three models compare on a fixed future holdout? |
-| Project Guide | How do the data flow, metrics and modeling decisions work? |
 
 Also includes CSV uploads with explicit mapping, consistent filters, Wilson intervals, batch inference, downloads with provenance, model fingerprints, a hand-checkable fixture and college presentation guides.
-
-## Version 2 interface preview
-
-![SupplyLens version 2 CSV import workspace](docs/assets/dashboard.jpg)
-
-The screenshot shows the redesigned version 2 CSV import screen, including the 200 MB upload control. The built-in real Olist sample powers the delivery dashboard and guided demo. See [verification](docs/VERIFICATION.md) for the checks actually performed.
 
 ## Quick start
 
@@ -151,9 +144,9 @@ Uploads stay in local session memory; unknown columns are removed before analyti
 
 ## Presentation and downloads
 
-Use **Start guided demo** to restore the real sample and move through the seven pages. **Presentation mode** keeps source controls compact. **Reset all filters** restores the full population; **Find order ID** applies consistently to descriptive metrics and reports.
+The website uses a simple six-page layout. **Reset all filters** restores the full population; **Find order ID** applies to descriptive metrics and reports. Study materials remain separate in docs/.
 
-The **Export centre** prepares downloads on demand. Delivery exports include cleaned CSV, summary CSV, Markdown insights and a printable HTML report. Analytical CSV report context is stored on its first data row. General CSV exports bundle selected rows, a column profile and a source/filter manifest in a ZIP.
+**Downloads** prepares downloads on demand. Delivery exports include cleaned CSV, summary CSV, Markdown insights and a printable HTML report. Analytical CSV report context is stored on its first data row. General CSV exports bundle selected rows, a column profile and a source/filter manifest in a ZIP.
 
 Both example files in data/examples/ are explicitly synthetic learning templates, separate from the included real Olist sample.
 

@@ -11,15 +11,7 @@ from src.reporting import safe_csv
 from src.ui import header, context_strip
 
 def render_general(selection, page):
-    if page=="Project Guide":
-        header("Ready for your viva.", "A clear explanation of what your uploaded data can and cannot establish.", "PROJECT GUIDE")
-        for name in ["CSV_WORKSPACE.md","VIVA_GUIDE.md","DEMO_SCRIPT.md","DATA_FLOW.md"]:
-            path=Path(__file__).resolve().parents[1]/"docs"/name
-            if path.exists():
-                with st.expander(name.replace("_"," ").replace(".md","").title(),expanded=name=="CSV_WORKSPACE.md"):
-                    st.markdown(path.read_text(encoding="utf-8"))
-        return
-    header("Explore your data.", "One workspace for unfamiliar CSVs: understand the structure, check quality and build the charts your columns support.", "GENERAL WORKSPACE")
+    header("CSV Data Analysis")
     with st.expander("Data preparation choices"):
         a,b=st.columns(2)
         decimal=a.selectbox("Decimal mark in numeric text",[".",","],help="This does not remove thousands separators or guess currency.")

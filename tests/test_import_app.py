@@ -52,17 +52,15 @@ def test_csv_missing_order_id_and_status_can_be_explicitly_mapped(monkeypatch):
     assert not app.exception
     assert app.metric[0].value=="1"
 
-def test_reset_demo_filters_and_lazy_reports():
+def test_reset_filters_and_lazy_reports():
     app=AppTest.from_file(str(ROOT/"app.py"),default_timeout=60).run()
     next(m for m in app.multiselect if m.label=="Region").set_value(["SP"]).run()
     next(b for b in app.button if b.label=="Reset all filters").click().run()
     assert app.metric[0].value=="12,000"
     next(b for b in app.button if b.label=="Prepare downloads").click().run()
     assert app.session_state["_delivery_exports"]
-    next(b for b in app.button if b.label=="Start guided demo").click().run()
-    assert app.session_state["demo_active"]
-    next(b for b in app.button if b.label=="Next section →").click().run()
-    assert app.radio(key="page").value=="Explore Data"
+    assert "Project Guide" not in app.radio(key="page").options
+    assert not any(b.label=="Start guided demo" for b in app.button)
     assert not app.exception
 
 def test_single_text_column_and_ambiguous_dates_remain_usable(monkeypatch):

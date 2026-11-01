@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 import hashlib
-from src.ui import inject_theme, header, context_strip, clear_filters, start_demo, demo_controls, PAGES
+from src.ui import inject_theme, header, context_strip, clear_filters, PAGES
 from src.import_ui import upload_workspace
 from src.general_ui import render_general
 import pandas as pd
@@ -19,7 +19,7 @@ from src.reporting import analytical_export, summary_frame, safe_csv, markdown_r
 from src.visualizations import style, outcome_chart, group_chart, trend_chart, distribution, correlation_chart
 
 ROOT = Path(__file__).resolve().parent
-st.set_page_config(page_title="Supply Chain | Delivery Intelligence", page_icon="📦", layout="wide")
+st.set_page_config(page_title="Supply Chain Analysis", page_icon="📦", layout="wide")
 inject_theme()
 
 @st.cache_data
@@ -32,17 +32,13 @@ def number(value, suffix="", percentage=False):
     return f"{value:.1%}" if percentage else f"{value:,.1f}{suffix}"
 
 with st.sidebar:
-    st.markdown('<div class="brand"><div class="brandmark">◈</div><div><strong>SupplyLens</strong><small>DELIVERY INTELLIGENCE</small></div></div>', unsafe_allow_html=True)
-    page=st.radio("Workspace",PAGES,key="page")
+    st.header("Supply Chain Analysis")
+    page=st.radio("Page",PAGES,key="page")
     st.divider()
-    st.button("Start guided demo",on_click=start_demo,width="stretch",type="primary")
-    presentation=st.toggle("Presentation mode",key="presentation_mode",
-                           help="Keeps source details compact while you present. Analysis and model results do not change.")
-    with st.expander("Data & analysis settings",expanded=not presentation):
-        data_choice=st.radio("Dataset",["Load sample data","Upload CSV"],key="data_choice")
+    data_choice=st.radio("Dataset",["Load sample data","Upload CSV"],key="data_choice")
+    with st.expander("Analysis settings"):
         minimum=st.number_input("Minimum group size",min_value=5,max_value=500,value=30,step=5,
-                                help="Smaller groups remain visible but do not enter ranked insights.")
-    st.caption("v2.0 · Built for clear, evidence-backed explanations")
+                                help="Groups below this size are excluded from ranked findings.")
 
 provenance = json.loads((ROOT / "data/sample/provenance.json").read_text(encoding="utf-8"))
 if data_choice == "Load sample data":
@@ -59,7 +55,7 @@ else:
         st.stop()
     if selection.prepared is None:
         render_general(selection,page)
-        st.markdown('<div class="footer-note">SUPPLYLENS / Inspect the data. Explain the evidence.</div>',unsafe_allow_html=True)
+
         st.stop()
     prepared=selection.prepared
     source=selection.source
@@ -99,22 +95,12 @@ with st.sidebar:
 filtered = filter_orders(orders, filters)
 metrics = kpis(filtered)
 active = [f"{key}: {', '.join(value) if isinstance(value, list) else value}" for key, value in filters.items() if value]
-titles={
-    "Overview":("Delivery performance, in focus.","A clear view of delivery reliability, order volume and the areas worth investigating."),
-    "Explore Data":("Trust the data before the chart.","Inspect validation results and understand exactly which orders enter the analysis."),
-    "Delivery Performance":("See where delays concentrate.","Compare rate, volume and delay severity with a consistent eligible population."),
-    "Business Insights":("Turn patterns into better questions.","Computed findings with evidence, a comparison and a practical next investigation."),
-    "Predict Delivery Risk":("Assess a new order.","Estimate late-arrival risk using information available at order placement."),
-    "Model Evaluation":("Evidence behind the estimate.","Compare three classifiers on later orders, with the limitations in plain sight."),
-    "Project Guide":("Ready for your viva.","The data flow, definitions and decisions you can confidently explain."),
-}
-header(*titles[page])
+header("Supply Chain Performance and Delivery Efficiency Analysis" if page=="Overview" else page)
 context_strip([dataset_name,f"{len(filtered):,} selected orders","Unit: distinct order",
                f"Eligible: {metrics['eligible_orders']:,}"])
 st.caption("Active filters — "+(" | ".join(active) if active else "All orders"))
-if is_sample and not presentation:
+if is_sample:
     st.caption("Real Olist sample · 2016–2018 · CC BY-NC-SA 4.0 · historical observational data")
-demo_controls(page)
 if prepared.quality["label_mismatches"]:
     st.warning(f"{prepared.quality['label_mismatches']} supplied labels disagree with derived late flags. Inspect source definitions; modeling is blocked.")
 
@@ -138,7 +124,7 @@ elif page == "Overview":
     st.plotly_chart(trend_chart(filtered), width="stretch")
     insights = build_insights(filtered, minimum, 1)
     with st.container(border=True):
-        st.subheader("An investigation worth starting")
+        st.subheader("Main finding")
         if insights:
             st.write(insights[0]["finding"])
             st.write(insights[0]["evidence"])
@@ -146,7 +132,7 @@ elif page == "Overview":
         else:
             st.write("There is not enough stable group evidence for an above-baseline finding.")
 elif page == "Explore Data":
-    st.subheader("Data quality before conclusions")
+    st.subheader("Data quality")
     q = prepared.quality
     a, b, c, d = st.columns(4)
     a.metric("Rows loaded", f"{q['rows_loaded']:,}")
@@ -312,27 +298,8 @@ elif page in ["Predict Delivery Risk", "Model Evaluation"]:
         st.download_button("Download model evaluation", evaluation_export(bundle, source), "model_evaluation.json", "application/json")
     else:
         st.warning("No matching model is loaded. Use the explicit training button when the dataset has adequate dates and class coverage.")
-elif page == "Project Guide":
-    st.subheader("Supply Chain Performance and Delivery Efficiency Analysis")
-    st.write("This project turns validated order records into delivery metrics, evidence-backed investigation priorities and a carefully evaluated estimate of late-delivery risk.")
-    with st.expander("How to explain the project in class", expanded=True):
-        st.write("I measure delivery at order level using actual customer arrival and the checkout promise. I compare groups and time periods, then evaluate three classifiers on later orders. I exclude outcome information from prediction inputs and report limitations alongside recommendations.")
-    with st.expander("Data provenance"):
-        st.json(provenance if is_sample else {"source": source, "kind": "User-uploaded; independently unverified"})
-    for label, filename in [("CSV formats and general workspace", "CSV_WORKSPACE.md"),
-                             ("Metric and analysis methodology", "METHODOLOGY.md"),
-                             ("Data dictionary", "DATA_DICTIONARY.md"),
-                             ("Data flow diagrams", "DATA_FLOW.md"),
-                             ("Viva preparation", "VIVA_GUIDE.md"),
-                             ("Five-minute demo", "DEMO_SCRIPT.md")]:
-        path = ROOT / "docs" / filename
-        if path.exists():
-            with st.expander(label):
-                st.markdown(path.read_text(encoding="utf-8"))
-    st.caption("Mermaid source is in docs/DATA_FLOW.md and renders on GitHub; the README includes a static diagram.")
-
 if page in ["Overview", "Explore Data", "Delivery Performance", "Business Insights"]:
-    with st.expander("Export centre · take the evidence with you"):
+    with st.expander("Downloads"):
         st.write("Prepare the selected data, a concise summary and a printable report.")
         export_key=hashlib.sha256((fingerprint+source+json.dumps(filters,sort_keys=True,default=str)+str(minimum)).encode()).hexdigest()
         if st.button("Prepare downloads",type="primary",disabled=filtered.empty):
@@ -355,4 +322,3 @@ if page in ["Overview", "Explore Data", "Delivery Performance", "Business Insigh
 with st.expander("Definitions and interpretation"):
     st.write(DEFINITIONS)
     st.caption(LIMITATIONS)
-st.markdown('<div class="footer-note">SUPPLYLENS / Evidence first. Decisions with context.</div>',unsafe_allow_html=True)
