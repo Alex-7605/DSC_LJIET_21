@@ -2,6 +2,9 @@
 from pathlib import Path
 import json
 import hashlib
+from src.ui import inject_theme, header, context_strip, clear_filters, start_demo, demo_controls, PAGES
+from src.import_ui import upload_workspace
+from src.general_ui import render_general
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -12,39 +15,12 @@ from src.preprocessing import filter_orders
 from src.metrics import kpis, group_performance, DEFINITIONS
 from src.insights import build_insights
 from src.modeling import train_models, predict_batch, load_local_bundle, dataset_fingerprint, feature_audit, NUMERIC
-from src.reporting import analytical_export, summary_frame, safe_csv, markdown_report, evaluation_export, LIMITATIONS
+from src.reporting import analytical_export, summary_frame, safe_csv, markdown_report, evaluation_export, html_report, LIMITATIONS
 from src.visualizations import style, outcome_chart, group_chart, trend_chart, distribution, correlation_chart
 
 ROOT = Path(__file__).resolve().parent
 st.set_page_config(page_title="Supply Chain | Delivery Intelligence", page_icon="📦", layout="wide")
-st.markdown("""
-<style>
-html, body, [class*="css"], .stApp {font-family:Arial,sans-serif;}
-h1,h2,h3 {color:#16324F; letter-spacing:-.035em;}
-.block-container {max-width:1450px; padding-top:4rem; padding-bottom:3rem;}
-[data-testid="stSidebar"] {background:#FFF; border-right:1px solid #E1E8F0;}
-[data-testid="stMetric"] {background:#FFF; border:1px solid #E1E8F0; border-radius:14px; padding:20px 22px;}
-[data-testid="stMetricLabel"] {color:#64748B; font-size:.85rem;}
-[data-testid="stMetricValue"] {color:#16324F; font-weight:800; font-size:clamp(1.4rem,2.6vw,2.2rem);}
-[data-testid="stPlotlyChart"] {background:white; border:1px solid #E1E8F0; border-radius:14px; padding:4px;}
-[data-testid="stExpander"] {background:white; border:1px solid #E1E8F0; border-radius:12px;}
-.eyebrow {color:#147D92; font-size:.77rem; font-weight:700; letter-spacing:.17em; text-transform:uppercase; margin-bottom:12px;}
-.brand {color:#16324F; font-size:1.45rem; font-weight:800; line-height:1.2;}
-.brand small {color:#64748B; font-size:.7rem; font-weight:500; letter-spacing:.12em;}
-.hero {padding:20px 0 16px;}
-.hero h1 {font-size:2.65rem; line-height:1.15; margin:0 0 10px;}
-.hero p {color:#64748B; font-size:1rem;}
-.rule {height:4px; width:42px; background:#147D92; border-radius:3px; margin:16px 0 20px;}
-[data-testid="stDownloadButton"] button {background:white;}
-@media(max-width:1200px) {
-[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) {flex-wrap:wrap;}
-[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) > [data-testid="stColumn"] {flex:1 1 calc(50% - 1rem)!important; width:calc(50% - 1rem)!important; min-width:0!important;}
-[data-testid="stHorizontalBlock"]:has([data-testid="stPlotlyChart"]) {flex-wrap:wrap;}
-[data-testid="stHorizontalBlock"]:has([data-testid="stPlotlyChart"]) > [data-testid="stColumn"] {flex:1 1 100%!important; width:100%!important; min-width:0!important;}
-}
-@media(max-width:800px) {.hero h1 {font-size:1.9rem;} .block-container {padding:4rem 1rem 1rem;}}
-</style>
-""", unsafe_allow_html=True)
+inject_theme()
 
 @st.cache_data
 def sample_data():
@@ -56,13 +32,17 @@ def number(value, suffix="", percentage=False):
     return f"{value:.1%}" if percentage else f"{value:,.1f}{suffix}"
 
 with st.sidebar:
-    st.markdown('<div class="brand">◈ Supply Chain<br><small>PERFORMANCE & DELIVERY</small></div><div class="rule"></div>', unsafe_allow_html=True)
-    page = st.radio("Workspace", ["Overview", "Explore Data", "Delivery Performance", "Business Insights",
-                                 "Predict Delivery Risk", "Model Evaluation", "Project Guide"], key="page")
+    st.markdown('<div class="brand"><div class="brandmark">◈</div><div><strong>SupplyLens</strong><small>DELIVERY INTELLIGENCE</small></div></div>', unsafe_allow_html=True)
+    page=st.radio("Workspace",PAGES,key="page")
     st.divider()
-    data_choice = st.radio("Dataset", ["Load sample data", "Upload CSV"], key="data_choice")
-    minimum = st.number_input("Minimum group size", min_value=5, max_value=500, value=30, step=5,
-                              help="Smaller groups remain visible but are excluded from ranked insights.")
+    st.button("Start guided demo",on_click=start_demo,width="stretch",type="primary")
+    presentation=st.toggle("Presentation mode",key="presentation_mode",
+                           help="Keeps source details compact while you present. Analysis and model results do not change.")
+    with st.expander("Data & analysis settings",expanded=not presentation):
+        data_choice=st.radio("Dataset",["Load sample data","Upload CSV"],key="data_choice")
+        minimum=st.number_input("Minimum group size",min_value=5,max_value=500,value=30,step=5,
+                                help="Smaller groups remain visible but do not enter ranked insights.")
+    st.caption("v2.0 · Built for clear, evidence-backed explanations")
 
 provenance = json.loads((ROOT / "data/sample/provenance.json").read_text(encoding="utf-8"))
 if data_choice == "Load sample data":
@@ -71,57 +51,20 @@ if data_choice == "Load sample data":
     dataset_name = "Olist · 12,000 real orders"
     is_sample = True
 else:
-    st.subheader("Bring your order data")
-    st.caption(f"CSV only · up to {MAX_UPLOAD_MB} MB and 250,000 rows · kept in your local session. Unknown columns are discarded.")
-    uploaded = st.file_uploader("Upload order or order-item CSV", type=["csv"])
-    if uploaded is None:
-        st.info("Choose a CSV or select Load sample data in the sidebar.")
-        st.stop()
-    encoding = st.selectbox("File encoding", ["utf-8-sig", "cp1252", "latin-1"])
     try:
-        raw = read_csv_bytes(uploaded.getvalue(), encoding, uploaded.name)
+        selection=upload_workspace()
     except ValueError as error:
         st.error(str(error))
+        st.info("Adjust the import settings or switch to General data exploration. Your source file is preserved.")
         st.stop()
-    st.write("Detected columns")
-    st.dataframe(pd.DataFrame({"Source column": raw.columns}), hide_index=True, width="stretch")
-    mapping, ambiguous = suggest_mapping(raw.columns)
-    if ambiguous:
-        st.warning("Choose mappings for ambiguous fields: " + ", ".join(ambiguous))
-    with st.form("mapping"):
-        st.caption("Map only non-identifying business fields. Do not map names, emails, street addresses or phone numbers. Delivery date means customer arrival, never carrier handover.")
-        columns = st.columns(3)
-        chosen = {}
-        options = ["(Not mapped)"] + list(raw.columns)
-        for i, field in enumerate(FIELDS):
-            default = mapping.get(field, "(Not mapped)")
-            chosen[field] = columns[i % 3].selectbox(field, options, index=options.index(default), key="map_" + field)
-        date_format = st.selectbox("Date format (explicit)", ["ISO8601", "%d/%m/%Y", "%m/%d/%Y", "%d/%m/%Y %H:%M:%S", "%m/%d/%Y %H:%M:%S"])
-        grain = st.selectbox("Input row represents", ["order", "item"])
-        financial_grain = st.selectbox("Financial values represent", ["item", "order"],
-                                        help="Item: sum line values. Order: repeated totals must agree and are counted once.")
-        source_note = st.text_input("Dataset source / provenance", value="User-uploaded CSV; provenance not verified")
-        durations_confirmed = st.checkbox("If using durations instead of dates: these measure order placement to customer delivery.")
-        validate_clicked = st.form_submit_button("Validate and use CSV", type="primary")
-    config_key = hashlib.sha256((str(chosen)+date_format+grain+financial_grain+source_note+str(durations_confirmed)).encode()+uploaded.getvalue()).hexdigest()
-    if validate_clicked:
-        try:
-            canonical = apply_mapping(raw, {k: v for k, v in chosen.items() if v != "(Not mapped)"})
-            if not {"delivery_date", "promised_date"}.issubset(canonical) and not durations_confirmed:
-                raise ValueError("Confirm duration semantics, or map actual customer-delivery and promised dates.")
-            result = prepare_orders(canonical, date_format, grain, financial_grain)
-            st.session_state["uploaded_prepared"] = (config_key, result)
-        except ValueError as error:
-            st.error(str(error))
-            st.stop()
-    stored = st.session_state.get("uploaded_prepared")
-    if not stored or stored[0] != config_key:
-        st.info("Confirm the mapping and select Validate and use CSV.")
+    if selection.prepared is None:
+        render_general(selection,page)
+        st.markdown('<div class="footer-note">SUPPLYLENS / Inspect the data. Explain the evidence.</div>',unsafe_allow_html=True)
         st.stop()
-    prepared = stored[1]
-    source = source_note
-    dataset_name = "Uploaded data · provenance unverified"
-    is_sample = False
+    prepared=selection.prepared
+    source=selection.source
+    dataset_name="Uploaded CSV · delivery analysis"
+    is_sample=False
 
 orders = prepared.orders
 fingerprint = dataset_fingerprint(orders)
@@ -138,8 +81,10 @@ with st.sidebar:
     st.caption(dataset_name)
     if not orders.empty:
         st.caption(f"Coverage: {orders.order_date.min():%d %b %Y} — {orders.order_date.max():%d %b %Y}")
+    st.button("Reset all filters",on_click=clear_filters,args=(fingerprint,),width="stretch")
     with st.expander("Filter orders", expanded=False):
         filters = {}
+        filters["order_search"]=st.text_input("Find order ID",key="order_search_"+fingerprint[:8],help="Literal search applied to metrics, charts and exports.")
         if not orders.empty:
             coverage = st.date_input("Order date range", value=(orders.order_date.min().date(), orders.order_date.max().date()),
                                      min_value=orders.order_date.min().date(), max_value=orders.order_date.max().date(), key="date_" + fingerprint[:8])
@@ -154,15 +99,22 @@ with st.sidebar:
 filtered = filter_orders(orders, filters)
 metrics = kpis(filtered)
 active = [f"{key}: {', '.join(value) if isinstance(value, list) else value}" for key, value in filters.items() if value]
-st.markdown('<div class="eyebrow">SUPPLY CHAIN INTELLIGENCE / COLLEGE DATA SCIENCE PROJECT</div>', unsafe_allow_html=True)
-if page == "Overview":
-    st.markdown('<div class="hero"><h1>Every order tells<br>a delivery story.</h1><p>Understand delivery performance. Find patterns. Investigate with evidence.</p></div>', unsafe_allow_html=True)
-else:
-    st.title(page)
-st.caption(f"{dataset_name}  •  Analytical unit: distinct order  •  {len(filtered):,} selected orders")
-st.caption("Active filters — " + (" | ".join(active) if active else "All orders"))
-if is_sample:
-    st.caption("Source: Olist / Kaggle · adapted real data · CC BY-NC-SA 4.0 · historical sample, 2016–2018")
+titles={
+    "Overview":("Delivery performance, in focus.","A clear view of delivery reliability, order volume and the areas worth investigating."),
+    "Explore Data":("Trust the data before the chart.","Inspect validation results and understand exactly which orders enter the analysis."),
+    "Delivery Performance":("See where delays concentrate.","Compare rate, volume and delay severity with a consistent eligible population."),
+    "Business Insights":("Turn patterns into better questions.","Computed findings with evidence, a comparison and a practical next investigation."),
+    "Predict Delivery Risk":("Assess a new order.","Estimate late-arrival risk using information available at order placement."),
+    "Model Evaluation":("Evidence behind the estimate.","Compare three classifiers on later orders, with the limitations in plain sight."),
+    "Project Guide":("Ready for your viva.","The data flow, definitions and decisions you can confidently explain."),
+}
+header(*titles[page])
+context_strip([dataset_name,f"{len(filtered):,} selected orders","Unit: distinct order",
+               f"Eligible: {metrics['eligible_orders']:,}"])
+st.caption("Active filters — "+(" | ".join(active) if active else "All orders"))
+if is_sample and not presentation:
+    st.caption("Real Olist sample · 2016–2018 · CC BY-NC-SA 4.0 · historical observational data")
+demo_controls(page)
 if prepared.quality["label_mismatches"]:
     st.warning(f"{prepared.quality['label_mismatches']} supplied labels disagree with derived late flags. Inspect source definitions; modeling is blocked.")
 
@@ -201,7 +153,8 @@ elif page == "Explore Data":
     b.metric("Usable orders", f"{q['usable_orders']:,}")
     c.metric("Exact duplicates", f"{q['exact_duplicates_removed']:,}")
     d.metric("Invalid record rows", f"{q['invalid_record_rows']:,}")
-    st.json({k: v for k, v in q.items() if k not in {"missing_values", "actions"}})
+    with st.expander("Validation detail and exclusion totals",expanded=False):
+        st.json({k: v for k, v in q.items() if k not in {"missing_values", "actions"}})
     st.dataframe(pd.DataFrame(list(q["missing_values"].items()), columns=["Field", "Missing source values"]), hide_index=True)
     for action in q["actions"]:
         st.write("• " + action)
@@ -286,11 +239,13 @@ elif page in ["Predict Delivery Risk", "Model Evaluation"]:
                         default = float(orders[feature].dropna().median())
                         minimum_value = 1.0 if feature in {"quantity", "order_month"} else 0.0
                         maximum_value = 12.0 if feature == "order_month" else (6.0 if feature == "order_weekday" else (1.0 if feature == "discount" else None))
-                        values[feature] = col.number_input(label, min_value=minimum_value, max_value=maximum_value, value=max(minimum_value, default),
+                        values[feature] = col.number_input(label, min_value=minimum_value, max_value=maximum_value, value=max(minimum_value, float(round(default)) if feature in {"quantity","order_month","order_weekday"} else default),
                                                           step=1.0 if feature != "discount" else .01,
                                                           help=f"Training range: {lower:g} to {upper:g}. Weekday: Monday=0.")
                     else:
-                        values[feature] = col.selectbox(label, report["training_categories"][feature])
+                        options=report["training_categories"][feature]
+                        typical=str(orders[feature].mode().iloc[0]) if not orders[feature].mode().empty else options[0]
+                        values[feature] = col.selectbox(label, options, index=options.index(typical) if typical in options else 0)
                 submitted = st.form_submit_button("Estimate delivery risk", type="primary")
             if submitted:
                 try:
@@ -364,7 +319,8 @@ elif page == "Project Guide":
         st.write("I measure delivery at order level using actual customer arrival and the checkout promise. I compare groups and time periods, then evaluate three classifiers on later orders. I exclude outcome information from prediction inputs and report limitations alongside recommendations.")
     with st.expander("Data provenance"):
         st.json(provenance if is_sample else {"source": source, "kind": "User-uploaded; independently unverified"})
-    for label, filename in [("Metric and analysis methodology", "METHODOLOGY.md"),
+    for label, filename in [("CSV formats and general workspace", "CSV_WORKSPACE.md"),
+                             ("Metric and analysis methodology", "METHODOLOGY.md"),
                              ("Data dictionary", "DATA_DICTIONARY.md"),
                              ("Data flow diagrams", "DATA_FLOW.md"),
                              ("Viva preparation", "VIVA_GUIDE.md"),
@@ -376,13 +332,27 @@ elif page == "Project Guide":
     st.caption("Mermaid source is in docs/DATA_FLOW.md and renders on GitHub; the README includes a static diagram.")
 
 if page in ["Overview", "Explore Data", "Delivery Performance", "Business Insights"]:
-    with st.expander("Download this analysis"):
-        cols = st.columns(3)
-        cols[0].download_button("Cleaned analytical CSV", analytical_export(filtered, source, filters, minimum), "cleaned_orders.csv", "text/csv")
-        cols[1].download_button("Filtered summary CSV", safe_csv(summary_frame(filtered, source, filters, minimum)), "filtered_summary.csv", "text/csv")
-        cols[2].download_button("Insight report", markdown_report(filtered, source, filters, minimum), "insight_report.md", "text/markdown")
-        st.caption("All downloads follow the active filters and include provenance, definitions and limitations.")
+    with st.expander("Export centre · take the evidence with you"):
+        st.write("Prepare the selected data, a concise summary and a printable report.")
+        export_key=hashlib.sha256((fingerprint+source+json.dumps(filters,sort_keys=True,default=str)+str(minimum)).encode()).hexdigest()
+        if st.button("Prepare downloads",type="primary",disabled=filtered.empty):
+            with st.spinner("Preparing downloads for the active filters…"):
+                st.session_state["_delivery_exports"]=(export_key,{
+                    "data":analytical_export(filtered,source,filters,minimum),
+                    "summary":safe_csv(summary_frame(filtered,source,filters,minimum)),
+                    "markdown":markdown_report(filtered,source,filters,minimum),
+                    "html":html_report(filtered,source,filters,minimum),
+                })
+        ready=st.session_state.get("_delivery_exports")
+        if ready and ready[0]==export_key:
+            files=ready[1]
+            cols=st.columns(4)
+            cols[0].download_button("Cleaned analytical CSV",files["data"],"cleaned_orders.csv","text/csv")
+            cols[1].download_button("Filtered summary CSV",files["summary"],"filtered_summary.csv","text/csv")
+            cols[2].download_button("Insight report",files["markdown"],"insight_report.md","text/markdown")
+            cols[3].download_button("Printable report",files["html"],"delivery_report.html","text/html")
+        st.caption("All downloads follow the active filters. CSV report context is stored on its first data row to keep large exports manageable. Open the HTML report to print or save as PDF.")
 with st.expander("Definitions and interpretation"):
     st.write(DEFINITIONS)
     st.caption(LIMITATIONS)
-st.caption("SUPPLY CHAIN / Evidence first. Decisions with context.")
+st.markdown('<div class="footer-note">SUPPLYLENS / Evidence first. Decisions with context.</div>',unsafe_allow_html=True)

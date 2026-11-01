@@ -69,7 +69,7 @@ def temporal_split(orders):
     validation_start = pd.Timestamp(days[int(len(days)*.6)])
     test_start = pd.Timestamp(days[int(len(days)*.8)])
     order_day = data.order_date.dt.normalize()
-    known_at = data.delivery_date.dt.normalize() + pd.Timedelta(days=1)
+    known_at = data.delivery_date.dt.normalize() + pd.to_timedelta(np.ones(len(data), dtype=int), unit="D")
     missing_date = known_at.isna()
     known_at.loc[missing_date] = data.loc[missing_date, "order_date"].dt.normalize() + pd.to_timedelta(data.loc[missing_date, "actual_days"] + 1, unit="D")
     train_mask = order_day.lt(validation_start)
@@ -111,6 +111,8 @@ def evaluate(y, probability, threshold):
     }
 
 def train_models(orders, placement_confirmed=False):
+    if int(orders.eligible.sum()) > 100000:
+        raise ValueError("Local training supports up to 100,000 eligible orders. Supply a representative order-level CSV within this limit; descriptive analysis remains available.")
     if not placement_confirmed:
         raise ValueError("Confirm feature availability at order placement before training.")
     if orders.label_mismatch.any():

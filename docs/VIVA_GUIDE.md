@@ -44,3 +44,11 @@ Use the actual table in docs/RESULTS.md or Model Evaluation. Explain the selecte
 ## Realistic future work
 
 Larger contemporary samples, audited feature availability, repeated forward validation, temporal calibration, better uncertainty estimates, and operational feedback could strengthen the project. A real intervention would require a separate causal or prospective evaluation before reporting savings.
+## Version 2 questions
+
+23. **Does it work with an unrelated CSV?** Yes, the general explorer profiles and charts supported columns at source-row grain. It does not invent delivery metrics from unrelated data.
+24. **Why are there two analysis paths?** General structure can be analyzed without business semantics; delivery rates require verified arrival/promise fields and eligibility rules.
+25. **What happens with a large file?** The app accepts up to 200 MB, one million rows and 300 columns, bounds displayed previews, labels chart samples and creates exports only on request.
+26. **Why preserve identifiers as text?** Numeric conversion can remove leading zeros or create meaningless correlations.
+27. **Does automatic schema detection prove a column's meaning?** No. It suggests compatible types and aliases; ambiguous delivery fields still require explicit mapping.
+28. **How can I demonstrate it quickly?** Click Start guided demo and follow the Next section controls, using the real sample. A separate small synthetic CSV demonstrates the general workspace.

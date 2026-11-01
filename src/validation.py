@@ -114,7 +114,7 @@ def prepare_orders(raw, date_format="ISO8601", grain="order", financial_grain="i
             aggregations[col] = lambda values: values.iloc[0] if values.nunique(dropna=False) == 1 else ("Mixed" if values.dtype.kind not in "fi" else np.nan)
         else:
             aggregations[col] = "first"
-    orders = data.groupby("order_id", as_index=False).agg(aggregations)
+    orders = data.sort_values("order_id").reset_index(drop=True) if grain == "order" else data.groupby("order_id", as_index=False).agg(aggregations)
     if dates_supported:
         # Calendar-day promise: arrival on the estimated date is on time.
         orders["actual_days"] = (orders.delivery_date.dt.normalize() - orders.order_date.dt.normalize()).dt.days.astype(float)

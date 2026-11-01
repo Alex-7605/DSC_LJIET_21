@@ -73,3 +73,12 @@ Training happens only through the explicit button or scripts/train.py. A fingerp
 Historical Brazilian marketplace orders and a small sample do not establish present-day global performance. Train/test drift, survivor bias, missing outcomes, uncertain administrative reporting delays and category sparsity limit generalization. The project has no carrier IDs, shipping modes, profit, discounts, customer segments, inventory levels, distance or measured savings in its real sample.
 
 See artifacts/model_evaluation.json for exact measured results and splits, docs/RESULTS.md for readable results, and docs/VERIFICATION.md for checks actually performed.
+## Version 2: schema-independent exploration
+
+The General data exploration path preserves the source-row grain and does not assume that an arbitrary CSV describes orders. It adds conservative column inference, missingness/duplicate profiling, literal search, numeric/category filters and supported chart types. ISO dates are recognized without guessing ambiguous day/month formats. All populated values must parse as finite numbers before a column becomes numeric; identifiers and leading-zero codes stay text.
+
+Detected contact, location and credential fields are excluded. Explicit duplicate removal operates on original source rows. General exports carry a separate provenance manifest, and any chart sampling is disclosed. Delivery metrics and classification remain unavailable until a valid delivery schema is explicitly mapped and validated.
+
+Large files are bounded by 200 MB, one million rows and 300 columns. General distribution/correlation plots use at most 50,000 reproducibly sampled rows; aggregate category and group charts use the full filtered population. Local training is capped at 100,000 eligible orders to keep the single-user project manageable. A larger dataset is not silently sampled for model evaluation.
+
+Reports are prepared on request. Analytical CSV context is recorded on the first data row to avoid a large repeated metadata payload. The printable HTML report escapes all supplied text and requires no external assets or scripts.

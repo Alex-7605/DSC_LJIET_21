@@ -3,6 +3,8 @@ import pandas as pd
 
 def filter_orders(orders, filters):
     result = orders.copy()
+    if filters.get("order_search"):
+        result=result.loc[result.order_id.astype(str).str.contains(filters["order_search"],case=False,regex=False,na=False)]
     if filters.get("start"):
         result = result.loc[result.order_date.dt.date >= pd.Timestamp(filters["start"]).date()]
     if filters.get("end"):

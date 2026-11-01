@@ -1,4 +1,51 @@
-# Verification record
+# Version 2 verification — examination edition
+
+Verified on **1 November 2026**, using the existing CPython 3.14.7 pinned environment. No dependency upgrade was needed.
+
+| Check | Actual outcome |
+|---|---|
+| Full current test suite | **73 passed**, no warnings, 23.62 seconds |
+| Legacy delivery/model correctness | All original 45 checks retained and passing |
+| Flexible CSV parsing | Comma/semicolon/tab/pipe, quoted multiline text, UTF-16 BOM, Windows encoding, literal NA, headerless and single-column input passed |
+| Resource boundaries | Row/column caps and upload limit checks passed; the UI displays 200 MB |
+| Larger real parsing workload | **26.91 MB**, **55,000 rows** imported in **0.314 seconds** and profiled in **0.252 seconds** on this machine |
+| Long text fields | A 150,000-character field loaded without the old CSV-parser field-size restriction |
+| General profiling | Leading-zero identifiers preserved; ambiguous dates/mixed numbers retained as text; explicit decimal-comma conversion passed |
+| Privacy and duplicates | Contact patterns beyond the initial preview excluded; duplicate removal uses original source rows and preserves distinct hidden identities |
+| Generic app workflow | Import, all six supported chart types, export bundle and delivery-feature guidance passed through Streamlit AppTest |
+| Delivery upload workflow | Explicit column mapping, eligibility metrics, optional confirmed ID/status creation and numeric-format normalization passed |
+| Malformed input UX | Error displayed with corrective guidance and no application exception |
+| Examination controls | Filter reset, lazy exports, guided-demo navigation and manual prediction passed |
+| Export correctness | Selected-row ZIP context, formula-safe headers, preserved negative numeric values and escaped printable HTML passed |
+| Local launcher | Occupied ports remain untouched; available-port selection and exhausted-port handling passed |
+| Reference model compatibility | The existing real-sample artifact still matches the validated dataset fingerprint; no test-based model reselection occurred |
+| Native browser test limit | Chrome extension blocked file selection; Windows automation then stopped because it could not verify the active browser URL |
+
+The original NumPy/pandas timedelta warnings were resolved with equivalent explicitly typed day offsets. The reference target, temporal cutoffs, feature list and measured classification experiment are unchanged.
+
+The measured large-file test proves handling above the former 25 MB limit. It does not establish performance for every 200 MB table or every hardware configuration.
+
+## Browser verification scope
+
+The redesigned dashboard and 200 MB file-uploader control were inspected in the browser. Automated CSV import, mapping, charts, exports, training and prediction handlers were exercised using Streamlit's official AppTest runner, with real uploaded-byte fixtures substituted for the file-picker transport.
+
+The final native file-picker interaction was **not completed**. Browser/Windows permissions were not changed. No claim is made that this blocked UI transport check passed.
+
+A separate preview used port 8502 because the user's existing app occupied 8501; that existing process was left alone.
+
+## Reproduce the current checks
+
+    .venv\Scripts\python.exe -m pip check
+    .venv\Scripts\python.exe -m pytest -q
+
+For the presentation, double-click **Start Project.cmd** or run:
+
+    .venv\Scripts\python.exe scripts\launch.py
+
+The standard **streamlit run app.py** remains supported. See CSV_WORKSPACE.md for format support, resource limits, privacy/type handling and the distinction between generic rows and eligible delivered orders.
+
+---
+# Version 1 verification record (historical)
 
 Verified on **1 November 2026**, using CPython 3.14.7 on Windows and the pinned project environment. Exact package versions are in requirements-lock.txt.
 

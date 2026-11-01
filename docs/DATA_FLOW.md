@@ -22,6 +22,9 @@ flowchart TD
     E --> F[Explicit column mapping and date format]
     C --> G[Validation and order aggregation]
     F --> G
+    E --> W[General CSV workspace]
+    W --> Y[Conservative types and privacy exclusions]
+    Y --> Z[Search, filters, supported charts and export bundle]
     G --> H[(Clean orders in session memory)]
     G --> Q[Quality and exclusion summary]
     H --> I[Shared filters]
@@ -68,3 +71,8 @@ stateDiagram-v2
 | reporting.py | Consistent provenance-aware downloads and formula-safe CSVs |
 
 See [the static diagram](assets/data-flow.svg) for a portable rendering.
+## Version 2 route selection
+
+General CSV exploration does not require order fields. Only an explicit delivery mapping enters the order-validation/model branch. Both routes preserve source bytes, bound file/table size and keep user uploads in session memory. Delimiter, encoding, header and numeric-format choices appear in the import workflow.
+
+The general route uses source-row grain and separate provenance-aware ZIP exports. The delivery route retains its eligible-order metric definitions and fixed temporal model evaluation. Neither route silently turns an arbitrary numeric column into a late-delivery target.

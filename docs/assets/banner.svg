@@ -3,10 +3,10 @@
 <path d="M1010 0H1400V420H1180Z" fill="#1A3D5C"/>
 <g fill="none" stroke="#147D92" stroke-width="2" opacity=".5"><path d="M1020 92l70-40 70 40v80l-70 40-70-40z"/><path d="M1090 52v80l70 40m-140-80l70 40"/><path d="M1190 227l70-40 70 40v80l-70 40-70-40z"/><path d="M1260 187v80l70 40m-140-80l70 40"/></g>
 <rect x="72" y="62" width="198" height="30" rx="15" fill="#147D92"/>
-<text x="91" y="82" fill="white" font-family="Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="2">DATA SCIENCE PROJECT</text>
+<text x="91" y="82" fill="white" font-family="Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="2">SUPPLYLENS / VERSION 2</text>
 <text x="72" y="158" fill="white" font-family="Arial,sans-serif" font-size="51" font-weight="700">Supply Chain Performance</text>
 <text x="72" y="222" fill="white" font-family="Arial,sans-serif" font-size="51" font-weight="700">&amp; Delivery Efficiency</text>
-<text x="74" y="275" fill="#C9DAE8" font-family="Arial,sans-serif" font-size="22">Real orders. Clear metrics. Evidence-backed investigations.</text>
+<text x="74" y="275" fill="#C9DAE8" font-family="Arial,sans-serif" font-size="22">Real orders. Flexible CSVs. Clear, evidence-backed analysis.</text>
 <path d="M74 318h42" stroke="#29B2BC" stroke-width="5"/>
 <text x="74" y="365" fill="#C9DAE8" font-family="Arial,sans-serif" font-size="15" letter-spacing="1.5">PYTHON  /  STREAMLIT  /  PLOTLY  /  SCIKIT-LEARN</text>
 </svg>

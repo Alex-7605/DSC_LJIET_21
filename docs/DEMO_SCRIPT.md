@@ -1,4 +1,5 @@
-# Five-minute demonstration
+# Five-minute demonstration — version 2
+Before the exam, double-click Start Project.cmd. Click Start guided demo to restore the real sample and clear filters; use Next section to advance. Presentation mode keeps source controls compact.
 
 ## 0:00–0:40 — Overview
 
@@ -29,3 +30,6 @@ Use default form values and select Estimate delivery risk. Explain the model, th
 Download a filtered summary or insight report. Show provenance, definitions and limitations. Open the guide and explain the data-flow diagram: input → validation → order table → metrics/insights and a separate model branch.
 
 Finish with: “The project demonstrates reliable measurement and honest model evaluation. Real operational changes would need more recent data and an independent validation study.”
+## Optional CSV question from the examiner
+
+Switch Dataset to Upload CSV and choose data/examples/general_example.csv. The file is explicitly synthetic. Show the schema/profile and Chart studio, then explain why this unrelated table has no inferred delivery target. Switch to the delivery template and explicitly map it to demonstrate the two paths. Use Start guided demo to return to the real Olist sample.

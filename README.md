@@ -25,9 +25,15 @@
 
 # Supply Chain Performance and Delivery Efficiency Analysis
 
+**SupplyLens · Version 2.0 — examination edition**
+
+A redesigned local dashboard with a universal CSV exploration workspace, 200 MB uploads, a guided viva tour, printable reports and a double-click launcher. [What changed](CHANGELOG.md) · [CSV workspace guide](docs/CSV_WORKSPACE.md)
+
+**Launch the installed project:** double-click **Start Project.cmd**. It opens a free local port automatically. The standard Streamlit command below remains supported.
+
 A complete, beginner-friendly college data science project built with Python and Streamlit. It turns real e-commerce orders into consistent delivery metrics, interactive comparisons, numerical insights, and a leakage-aware late-delivery classification experiment.
 
-The project measures **actual customer arrival against the delivery promise shown at checkout**. It keeps the excluded population visible and explains uncertainty alongside recommendations.
+The supply-chain branch measures **actual customer arrival against the delivery promise shown at checkout**. It keeps the excluded population visible and explains uncertainty alongside recommendations.
 
 ## What you can explore
 
@@ -43,11 +49,11 @@ The project measures **actual customer arrival against the delivery promise show
 
 Also includes CSV uploads with explicit mapping, consistent filters, Wilson intervals, batch inference, downloads with provenance, model fingerprints, a hand-checkable fixture and college presentation guides.
 
-## Dashboard preview
+## Version 2 interface preview
 
-![Application overview](docs/assets/dashboard.jpg)
+![SupplyLens version 2 CSV import workspace](docs/assets/dashboard.jpg)
 
-The screenshot shows the running application with the included real-data sample. See [verification](docs/VERIFICATION.md) for the checks actually performed.
+The screenshot shows the redesigned version 2 CSV import screen, including the 200 MB upload control. The built-in real Olist sample powers the delivery dashboard and guided demo. See [verification](docs/VERIFICATION.md) for the checks actually performed.
 
 ## Quick start
 
@@ -133,15 +139,23 @@ See [measured results](docs/RESULTS.md), [feature and split methodology](docs/ME
 
 ## Bring your own data
 
-Choose Upload CSV, inspect detected columns, confirm mappings, select date format, specify order/item grain and financial aggregation, then validate.
+Choose Upload CSV. General data exploration works with any valid supported table within the limits: inspect types/missingness, search and filter, build charts, and export selected rows with a manifest. To activate delivery metrics, choose Delivery analytics, confirm mappings and date format, specify order/item and financial grain, then validate. See the [CSV workspace guide](docs/CSV_WORKSPACE.md).
 
-Required: order ID, placement date, status, and either actual customer delivery plus promised date or explicitly verified order-to-customer-delivery durations. Item uploads also require item_id. A shipment or carrier-handover timestamp is never an arrival-date substitute.
+Required for delivery analytics: order ID, placement date, status, and either actual customer delivery plus promised date or explicitly verified order-to-customer-delivery durations. Explicit opt-in can generate row IDs for one-row-per-order data or derive delivered/unknown status from customer-arrival dates. Item uploads also require item_id. A shipment or carrier-handover timestamp is never an arrival-date substitute.
 
-The configurable limit defaults to **25 MB**, with a 250,000-row cap. Set SC_UPLOAD_LIMIT_MB and the Streamlit server.maxUploadSize setting consistently for a different limit. Batch predictions are capped at 10,000 rows.
+The configurable limit defaults to **200 MB**, **1,000,000 rows** and **300 columns**. CSV, TSV and delimited TXT support common separators, encodings, headerless files and optional header repair. The uploader receives SC_UPLOAD_LIMIT_MB explicitly; SC_MAX_ROWS and SC_MAX_COLUMNS configure table limits. Batch predictions are capped at 10,000 rows; local model training is limited to 100,000 eligible orders.
 
 Unseen prediction categories are handled safely with a warning. Missing mandatory inference values, invalid numeric ranges and stale artifacts are rejected or ignored with an explanation. The app never accepts uploaded pickle/joblib files.
 
 Uploads stay in local session memory; unknown columns are removed before analytical preview/export. Map only appropriate non-identifying business fields. Local source data is preserved, and no public app deployment is created.
+
+## Presentation and downloads
+
+Use **Start guided demo** to restore the real sample and move through the seven pages. **Presentation mode** keeps source controls compact. **Reset all filters** restores the full population; **Find order ID** applies consistently to descriptive metrics and reports.
+
+The **Export centre** prepares downloads on demand. Delivery exports include cleaned CSV, summary CSV, Markdown insights and a printable HTML report. Analytical CSV report context is stored on its first data row. General CSV exports bundle selected rows, a column profile and a source/filter manifest in a ZIP.
+
+Both example files in data/examples/ are explicitly synthetic learning templates, separate from the included real Olist sample.
 
 ## Data flow
 
@@ -180,6 +194,7 @@ DSC_LJIET_21/
 | [Methodology](docs/METHODOLOGY.md) | Eligibility, aggregation, leakage prevention and temporal experiment |
 | [Data flow](docs/DATA_FLOW.md) | Context, detailed flow and model lifecycle |
 | [Results](docs/RESULTS.md) | Actual metrics, split dates and limitations |
+| [CSV workspace](docs/CSV_WORKSPACE.md) | Formats, limits, inference, mappings and general charts |
 | [Verification](docs/VERIFICATION.md) | Executed tests and manual checks |
 | [Viva guide](docs/VIVA_GUIDE.md) | Introduction and 22 likely questions |
 | [Demo script](docs/DEMO_SCRIPT.md) | Five-minute presentation |

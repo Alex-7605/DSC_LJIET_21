@@ -17,7 +17,7 @@ def training_orders():
         "order_id":[f"SYNTHETIC-{i}" for i in range(n)],
         "order_date": dates.strftime("%Y-%m-%d"),
         "delivery_date": (dates + pd.to_timedelta(np.where(late,9,4), unit="D")).strftime("%Y-%m-%d"),
-        "promised_date": (dates + pd.Timedelta(days=6)).strftime("%Y-%m-%d"),
+        "promised_date": (dates + pd.to_timedelta(np.full(n,6),unit="D")).strftime("%Y-%m-%d"),
         "status":"delivered", "sales":rng.integers(10,300,size=n), "quantity":1,
         "category":np.where(late, "Games","Books"), "region":np.where(np.arange(n)%2, "North","South")
     })
@@ -34,8 +34,8 @@ def test_split_has_no_order_overlap_and_no_future_outcomes(training_orders):
     assert not set(train.order_id) & set(test.order_id)
     assert not set(val.order_id) & set(test.order_id)
     assert train.order_date.max() < val.order_date.min() < test.order_date.min()
-    assert (train.delivery_date.dt.normalize()+pd.Timedelta(days=1) < pd.Timestamp(meta["validation_start"])).all()
-    assert (val.delivery_date.dt.normalize()+pd.Timedelta(days=1) < pd.Timestamp(meta["test_start"])).all()
+    assert (train.delivery_date.dt.normalize().to_numpy()+np.timedelta64(1,"D") < pd.Timestamp(meta["validation_start"])).all()
+    assert (val.delivery_date.dt.normalize().to_numpy()+np.timedelta64(1,"D") < pd.Timestamp(meta["test_start"])).all()
 
 def test_feature_allowlist_excludes_leakage(training_orders, trained):
     forbidden={"order_id","actual_days","delivery_date","delay_days","late","status","delivery_outcome","profit","supplied_late"}

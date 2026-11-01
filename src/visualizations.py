@@ -16,8 +16,12 @@ def style(fig, title=None):
 
 def outcome_chart(orders):
     counts = orders.loc[orders.eligible, "delivery_outcome"].value_counts().rename_axis("Outcome").reset_index(name="Orders")
-    return style(px.pie(counts, names="Outcome", values="Orders", hole=.72,
-                        color="Outcome", color_discrete_map={"On time": TEAL, "Late": RED}), "Eligible delivery outcomes")
+    fig=style(px.pie(counts,names="Outcome",values="Orders",hole=.76,
+                    color="Outcome",color_discrete_map={"On time":TEAL,"Late":RED}),"Eligible delivery outcomes")
+    fig.add_annotation(x=.5,y=.5,xref="paper",yref="paper",showarrow=False,
+                       text=f"<b>{int(orders.eligible.sum()):,}</b><br><span style='font-size:11px'>eligible orders</span>",
+                       font=dict(size=26,color=NAVY))
+    return fig
 
 def group_chart(orders, column, minimum=30, top_n=10):
     table = group_performance(orders, column, minimum)
