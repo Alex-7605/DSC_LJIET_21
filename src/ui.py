@@ -7,8 +7,10 @@ PAGES = ["Overview", "Explore Data", "Delivery Performance", "Business Insights"
 def inject_theme():
     st.markdown("""
 <style>
-.stApp {background:white;}
-[data-testid="stSidebar"] {background:#F1F3F5;}
+.stApp {background:#FAFCFE;color:#243746;}
+[data-testid="stSidebar"] {background:#E7EFF5;}
+h1,h2,h3 {color:#244761;}
+[data-testid="stMetricValue"] {color:#244761;}
 .block-container {max-width:1300px;padding-top:3.5rem;}
 h1 {font-size:1.9rem!important;}
 h2 {font-size:1.4rem!important;}

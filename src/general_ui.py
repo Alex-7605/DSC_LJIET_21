@@ -20,7 +20,7 @@ def render_general(selection, page):
     profile_key=(selection.token,decimal,deduplicate)
     stored=st.session_state.get("_generic_profile")
     if stored is None or stored[0]!=profile_key:
-        with st.spinner("Profiling columns and excluding detected contact fields…"):
+        with st.spinner("Profiling columns and excluding detected contact fieldsâ€¦"):
             dataset=infer_general(selection.raw,decimal,deduplicate)
         st.session_state["_generic_profile"]=(profile_key,dataset)
     dataset=st.session_state["_generic_profile"][1]
@@ -73,12 +73,12 @@ def render_general(selection, page):
         st.dataframe(dataset.profile,hide_index=True,width="stretch")
         st.caption("Column profiles describe the full prepared table. Numeric conversion requires every nonblank value to be finite and valid. Ambiguous dates and mixed numeric text remain text.")
         for action in dataset.actions:
-            st.write("• "+action)
+            st.write("â€¢ "+action)
         if dataset.hidden_columns:
             with st.expander("Excluded column names"):
                 st.write(", ".join(dataset.hidden_columns))
         if dataset.numeric_columns:
-            st.subheader("Numeric summary · selected rows")
+            st.subheader("Numeric summary Â· selected rows")
             st.dataframe(selected[dataset.numeric_columns].describe().T,width="stretch")
     with chart_tab:
         render_chart_studio(selected,dataset,selection.token)
@@ -86,7 +86,7 @@ def render_general(selection, page):
         st.write("Download the selected rows with their source, filters, column profile and cleaning notes.")
         export_key=sha256((str(profile_key)+selection.source+json.dumps(filters,sort_keys=True,default=str)).encode()).hexdigest()
         if st.button("Prepare data export",type="primary",disabled=selected.empty):
-            with st.spinner("Building your export bundle…"):
+            with st.spinner("Building your export bundleâ€¦"):
                 st.session_state["_generic_export"]=(export_key,general_bundle(selected,dataset,selection.source,filters))
         export=st.session_state.get("_generic_export")
         if export and export[0]==export_key:
@@ -113,9 +113,9 @@ def render_chart_studio(frame,dataset,token):
         field=st.selectbox("Category column",columns)
         n=st.slider("Top groups",5,30,10)
         counts=frame[field].fillna("(Missing)").astype(str).value_counts().head(n).rename_axis(field).reset_index(name="Rows")
-        fig=px.bar(counts,x="Rows",y=field,orientation="h",color_discrete_sequence=["#147D92"])
+        fig=px.bar(counts,x="Rows",y=field,orientation="h",color_discrete_sequence=["#287F83"])
         fig.update_layout(yaxis={"categoryorder":"total ascending"})
-        st.plotly_chart(style(fig,f"Most frequent values · {field}"),width="stretch")
+        st.plotly_chart(style(fig,f"Most frequent values Â· {field}"),width="stretch")
         st.caption(f"Top {n} by row count; full selected table, {len(frame):,} rows. Other groups are outside this view.")
     elif chart=="Group comparison":
         category=st.selectbox("Group by",[c for c in frame if c not in dataset.date_columns])
@@ -124,7 +124,7 @@ def render_chart_studio(frame,dataset,token):
         grouped_input=pd.DataFrame({"Group":frame[category].astype("string").fillna("(Missing)"),"Value":frame[numeric]})
         groups=grouped_input.groupby("Group")["Value"].agg([operation,"size"])
         groups=groups.sort_values("size",ascending=False).head(15).rename(columns={operation:"Measure","size":"Rows"}).reset_index()
-        st.plotly_chart(style(px.bar(groups,x="Group",y="Measure",custom_data=["Rows"],color_discrete_sequence=["#147D92"]),f"{operation.title()} {numeric} by {category}"),width="stretch")
+        st.plotly_chart(style(px.bar(groups,x="Group",y="Measure",custom_data=["Rows"],color_discrete_sequence=["#287F83"]),f"{operation.title()} {numeric} by {category}"),width="stretch")
         st.dataframe(groups,hide_index=True,width="stretch")
         st.caption("Top 15 groups by source-row count. Confirm a measure is additive before interpreting a sum.")
     elif chart=="Time trend":
@@ -141,13 +141,13 @@ def render_chart_studio(frame,dataset,token):
         st.caption(f"Chart population: {len(sampled):,} / {len(frame):,} selected rows. A reproducible seed-21 sample is used above {CHART_ROWS:,} rows.")
         if chart=="Numeric distribution":
             field=st.selectbox("Numeric column",dataset.numeric_columns)
-            fig=px.histogram(sampled,x=field,nbins=35,color_discrete_sequence=["#147D92"])
+            fig=px.histogram(sampled,x=field,nbins=35,color_discrete_sequence=["#287F83"])
         elif chart=="Scatter plot":
             a,b=st.columns(2)
             x=a.selectbox("Horizontal axis",dataset.numeric_columns)
             y=b.selectbox("Vertical axis",dataset.numeric_columns,index=1)
             points=sampled.head(10000)
-            fig=px.scatter(points,x=x,y=y,opacity=.45,color_discrete_sequence=["#147D92"])
+            fig=px.scatter(points,x=x,y=y,opacity=.45,color_discrete_sequence=["#287F83"])
             st.caption(f"Showing up to 10,000 points from the chart sample. Relationships are observational.")
         else:
             columns=st.multiselect("Correlation measures",dataset.numeric_columns,default=dataset.numeric_columns[:min(6,len(dataset.numeric_columns))],max_selections=12)
